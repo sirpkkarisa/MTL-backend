@@ -167,10 +167,10 @@ exports.changePassword = (req, res) => {
   const { newPassword } = req.body;
   if (uid === undefined || currentPassword === undefined || newPassword === undefined) {
     return res.status(400)
-    .json({
-      status: 'error',
-      error: 'All fields are required',
-    });
+      .json({
+        status: 'error',
+        error: 'All fields are required',
+      });
   }
   pool.query(`SELECT * FROM users WHERE email='${uid}' OR username='${uid}'`)
     .then(
@@ -242,7 +242,6 @@ exports.changePassword = (req, res) => {
 exports.forgotPassword = (req, res) => {
   const resetPasswordToken = crypto.randomBytes(20).toString('hex');
   const { email } = req.body;
-  console.log(resetPasswordToken)
   const mailOptions = {
     from: `${process.env.NODEMAILER_USER}`,
     to: `${email}`,
@@ -321,19 +320,32 @@ exports.resetPassword = (req, res) => {
               error: 'Forbidden',
             });
         }
-        return pool.query(`UPDATE users SET password='${password}' AND reset_password_token=null`)
+        const email = rows.map((data) => data.email).toString();
+        return bcrypt.hash(password, 10)
           .then(
-            () => {
-              res.status(200)
-                .json({
-                  status: 'success',
-                  message: 'Password has successfully been reset',
-                });
-            },
+            (hash) => pool.query(`UPDATE users SET password='${hash}', reset_password_token=null WHERE email='${email}'`)
+              .then(
+                () => {
+                  res.status(200)
+                    .json({
+                      status: 'success',
+                      message: 'Password has successfully been reset',
+                    });
+                },
+              )
+              .catch(
+                (error) => {
+                  res.status(500)
+                    .json({
+                      status: 'error',
+                      error: `${error}`,
+                    });
+                },
+              ),
           )
           .catch(
             (error) => {
-              res.status(500)
+              res.status(501)
                 .json({
                   status: 'error',
                   error: `${error}`,
