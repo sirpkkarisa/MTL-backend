@@ -10,7 +10,7 @@ exports.uploadVideo = (req, res) => {
         error: 'Please select video file',
       });
   }
-  return cloudinary.uploader.upload(req.file.path, (result) => {
+  return cloudinary.uploader.upload_large(req.file.path, (result) => {
     const videoId = uuid.v4();
     const videoUrl = result.secure_url;
     const { videoTitle } = req.body;
@@ -50,7 +50,7 @@ exports.uploadVideo = (req, res) => {
             });
         },
       );
-  });
+  }, { resource_type: 'video' });
 };
 exports.getVideos = (req, res) => {
   pool.query('SELECT * FROM videos')
@@ -92,10 +92,17 @@ exports.getVideo = (req, res) => {
               error: 'Video Not Found',
             });
         }
-        return pool.query(`SELECT * FROM comments WHERE video_id='${videoId}'`)
+        return pool.query(`SELECT * FROM comments WHERE item_id='${videoId}'`)
           .then(
             (result) => {
-              console.log(result);
+              res.status(200)
+                .json({
+                  status: 'succes',
+                  data: {
+                    video: rows,
+                    comments: result.rows,
+                  },
+                });
             },
           )
           .catch(
@@ -123,7 +130,7 @@ exports.updateVideo = (req, res) => {
   const { userRole } = req.body;
   const { videoTitle } = req.body;
   const { videoId } = req.params;
-  pool.query(`UPDATE videos SET video_title='${videoTitle}' WHERE video_id='${videoId}' AND user_role='${userRole}'`)
+  pool.query(`SELECT * FROM videos WHERE video_id='${videoId}' AND user_role='${userRole}'`)
     .then(
       ({ rows }) => {
         if (rows.length === 0) {
@@ -133,13 +140,34 @@ exports.updateVideo = (req, res) => {
               error: 'Unauthorized',
             });
         }
-        return res.status(200)
-          .json({
-            status: 'success',
-            data: {
-              message: 'Video title successfully updated',
-              videoTitle,
+        return pool.query(`UPDATE videos SET video_title='${videoTitle}' WHERE video_id='${videoId}' AND user_role='${userRole}'`)
+          .then(
+            () => res.status(200)
+              .json({
+                status: 'success',
+                data: {
+                  message: 'Video title successfully updated',
+                  videoTitle,
+                },
+              }),
+          )
+          .catch(
+            (error) => {
+              res.status(501)
+                .json({
+                  status: 'error',
+                  error: `${error}`,
+                });
             },
+          );
+      },
+    )
+    .catch(
+      (error) => {
+        res.status(501)
+          .json({
+            status: 'error',
+            error: `${error}`,
           });
       },
     );

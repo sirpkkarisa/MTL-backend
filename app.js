@@ -4,17 +4,18 @@ const bodyParser = require('body-parser');
 require('./middlewares/config-pool').pool;
 // users relation
 require('./models/users').usersTable();
-require('./models/images').usersTable();
-require('./models/audios').usersTable();
-require('./models/videos').usersTable();
-require('./models/articles').usersTable();
+require('./models/images').imagesTable();
+require('./models/audios').audiosTable();
+require('./models/videos').videosTable();
+require('./models/comments').commentsTable();
+// require('./models/articles').articlesTable();
 
 const app = express();
 const usersRoutes = require('./routes/users');
-const imagesRoutes = require('./routes/users');
-const audiosRoutes = require('./routes/users');
-const videosRoutes = require('./routes/users');
-const articlesRoutes = require('./routes/users');
+const imagesRoutes = require('./routes/images');
+const audiosRoutes = require('./routes/audios');
+const videosRoutes = require('./routes/videos');
+// const articlesRoutes = require('./routes/articles');
 
 app.use((req, res, next) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -29,5 +30,5 @@ app.use('/auth', usersRoutes);
 app.use('/images', imagesRoutes);
 app.use('/audios', audiosRoutes);
 app.use('/videos', videosRoutes);
-app.use('/articles', articlesRoutes);
+// app.use('/articles', articlesRoutes);
 module.exports = app;

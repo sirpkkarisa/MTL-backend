@@ -25,20 +25,33 @@ exports.uploadImage = (req, res) => {
     }
     return pool.query('INSERT INTO images VALUES($1, $2, $3, $4, $5)', [imageId, imageTitle, imageUrl, userRole, authorId])
       .then(
-        ({ rows }) => {
-          const createdOn = rows.map((data) => data.created_on).toString();
-          res.status(201)
-            .json({
-              status: 'success',
-              data: {
-                imageId,
-                message: 'Image successfully uploaded',
-                imageUrl,
-                imageTitle,
-                authorId,
-                createdOn,
+        () => {
+          pool.query('SELECT * FROM images WHERE image_id=$1', [imageId])
+            .then(
+              ({ rows }) => {
+                const createdOn = rows.map((data) => data.created_on).toString();
+                res.status(201)
+                  .json({
+                    status: 'success',
+                    data: {
+                      imageId,
+                      message: 'Image successfully uploaded',
+                      imageUrl,
+                      imageTitle,
+                      authorId,
+                      createdOn,
+                    },
+                  });
               },
-            });
+            ).catch(
+              (error) => {
+                res.status(501)
+                  .json({
+                    status: 'error',
+                    error: `${error}`,
+                  });
+              },
+            );
         },
       )
       .catch(
@@ -92,10 +105,17 @@ exports.getImage = (req, res) => {
               error: 'Image Not Found',
             });
         }
-        return pool.query(`SELECT * FROM comments WHERE image_id='${imageId}'`)
+        return pool.query(`SELECT * FROM comments WHERE item_id='${imageId}'`)
           .then(
             (result) => {
-              console.log(result);
+              res.status(200)
+                .json({
+                  status: 'success',
+                  data: {
+                    image: rows,
+                    comments: result.rows,
+                  },
+                });
             },
           )
           .catch(
@@ -123,7 +143,7 @@ exports.updateImage = (req, res) => {
   const { userRole } = req.body;
   const { imageTitle } = req.body;
   const { imageId } = req.params;
-  pool.query(`UPDATE images SET image_title='${imageTitle}' WHERE image_id='${imageId}' AND user_role='${userRole}'`)
+  pool.query(`SELECT * FROM images WHERE image_id='${imageId}' AND user_role='${userRole}'`)
     .then(
       ({ rows }) => {
         if (rows.length === 0) {
@@ -133,13 +153,34 @@ exports.updateImage = (req, res) => {
               error: 'Unauthorized',
             });
         }
-        return res.status(200)
-          .json({
-            status: 'success',
-            data: {
-              message: 'Image title successfully updated',
-              imageTitle,
+        pool.query(`UPDATE images SET image_title='${imageTitle}' WHERE image_id='${imageId}'`)
+          .then(
+            () => res.status(200)
+              .json({
+                status: 'success',
+                data: {
+                  message: 'Image title successfully updated',
+                  imageTitle,
+                },
+              }),
+          )
+          .catch(
+            (error) => {
+              res.status(501)
+                .json({
+                  status: 'error',
+                  error: `${error}`,
+                });
             },
+          );
+      },
+    )
+    .catch(
+      (error) => {
+        res.status(501)
+          .json({
+            status: 'error',
+            error: `${error}`,
           });
       },
     );

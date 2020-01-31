@@ -10,7 +10,7 @@ exports.uploadAudio = (req, res) => {
         error: 'Please select audio file',
       });
   }
-  return cloudinary.uploader.upload(req.file.path, (result) => {
+  return cloudinary.uploader.upload_large(req.file.path, (result) => {
     const audioId = uuid.v4();
     const audioUrl = result.secure_url;
     const { audioTitle } = req.body;
@@ -50,7 +50,7 @@ exports.uploadAudio = (req, res) => {
             });
         },
       );
-  });
+  }, { resource_type: 'video' });
 };
 exports.getAudios = (req, res) => {
   pool.query('SELECT * FROM audios')
@@ -92,10 +92,17 @@ exports.getAudio = (req, res) => {
               error: 'Audio Not Found',
             });
         }
-        return pool.query(`SELECT * FROM comments WHERE audio_id='${audioId}'`)
+        return pool.query(`SELECT * FROM comments WHERE item_id='${audioId}'`)
           .then(
             (result) => {
-              console.log(result);
+              res.status(200)
+                .json({
+                  status: 'success',
+                  data: {
+                    audio: rows,
+                    comments: result.rows,
+                  },
+                });
             },
           )
           .catch(
@@ -123,7 +130,7 @@ exports.updateAudio = (req, res) => {
   const { userRole } = req.body;
   const { audioTitle } = req.body;
   const { audioId } = req.params;
-  pool.query(`UPDATE Audios SET video_title='${audioTitle}' WHERE audio_id='${audioId}' AND user_role='${userRole}'`)
+  pool.query(`SELECT * FROM audios WHERE audio_id='${audioId}' AND user_role='${userRole}'`)
     .then(
       ({ rows }) => {
         if (rows.length === 0) {
@@ -133,13 +140,35 @@ exports.updateAudio = (req, res) => {
               error: 'Unauthorized',
             });
         }
-        return res.status(200)
-          .json({
-            status: 'success',
-            data: {
-              message: 'Video title successfully updated',
-              audioTitle,
+        pool.query(`UPDATE Audios SET audio_title='${audioTitle}' WHERE audio_id='${audioId}' AND user_role='${userRole}'`)
+          .then(
+            () => res.status(200)
+              .json({
+                status: 'success',
+                data: {
+                  message: 'Video title successfully updated',
+                  audioTitle,
+                },
+              }),
+          )
+          .catch(
+            (error) => {
+              res.status(200)
+                .json({
+                  status: 'error',
+
+                  error: `${error}`,
+                });
             },
+          );
+      },
+    )
+    .catch(
+      (error) => {
+        res.status(200)
+          .json({
+            status: 'error',
+            error: `${error}`,
           });
       },
     );

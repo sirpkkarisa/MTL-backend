@@ -1,6 +1,6 @@
 const pool = require('../middlewares/config-pool');
 
-exports.imagesTable = () => {
+exports.audiosTable = () => {
   pool.query(`
     CREATE TABLE IF NOT EXISTS
     audios(

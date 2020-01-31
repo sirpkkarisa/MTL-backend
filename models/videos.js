@@ -1,6 +1,6 @@
 const pool = require('../middlewares/config-pool');
 
-exports.imagesTable = () => {
+exports.videosTable = () => {
   pool.query(`
     CREATE TABLE IF NOT EXISTS
     videos(
