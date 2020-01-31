@@ -1,17 +1,4 @@
-const { Pool } = require('pg');
-const dotenv = require('dotenv');
-
-dotenv.config();
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-});
-pool.connect()
-  .then(
-    () => console.log('DB Connection OK'),
-  )
-  .catch(
-    (error) => console.log(`Something went wrong ${error}`),
-  );
+const pool = require('../middlewares/config-pool');
 
 exports.usersTable = () => {
   pool.query(`CREATE TABLE IF NOT EXISTS
