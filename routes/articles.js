@@ -1,10 +1,12 @@
 const express = require('express');
 
 const router = express.Router();
+const articlesCtrl = require('../controllers/articles');
+const auth = require('../middlewares/config-jwt').auth;
 
-router.post('/articles', articlesCtrl.)
-router.patch('/articles/:articleId', articlesCtrl.)
-router.delete('/articles/:articleId', articlesCtrl.)
-router.get('/articles', articlesCtrl.)
-router.get('/articles/:articleId', articlesCtrl.)
+router.post('/', auth, articlesCtrl.createArticle);
+router.patch('/:articleId', auth, articlesCtrl.updateArticle);
+router.delete('/:articleId', auth, articlesCtrl.deleteArticle);
+router.get('/', articlesCtrl.getArticles);
+router.get('/:articleId', articlesCtrl.getArticle);
 module.exports = router;

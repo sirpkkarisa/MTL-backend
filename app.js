@@ -8,14 +8,14 @@ require('./models/images').imagesTable();
 require('./models/audios').audiosTable();
 require('./models/videos').videosTable();
 require('./models/comments').commentsTable();
-// require('./models/articles').articlesTable();
+require('./models/articles').articlesTable();
 
 const app = express();
 const usersRoutes = require('./routes/users');
 const imagesRoutes = require('./routes/images');
 const audiosRoutes = require('./routes/audios');
 const videosRoutes = require('./routes/videos');
-// const articlesRoutes = require('./routes/articles');
+const articlesRoutes = require('./routes/articles');
 
 app.use((req, res, next) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -30,5 +30,5 @@ app.use('/auth', usersRoutes);
 app.use('/images', imagesRoutes);
 app.use('/audios', audiosRoutes);
 app.use('/videos', videosRoutes);
-// app.use('/articles', articlesRoutes);
+app.use('/articles', articlesRoutes);
 module.exports = app;

@@ -10,7 +10,12 @@ exports.articlesTable = () => {
         user_role VARCHAR(255) NOT NULL,
         author_id UUID NOT NULL,
         created_on TIMESTAMP DEFAULT NOW(),
-        PRIMARY KEY(audio_id)
+        PRIMARY KEY(article_id)
     )
-    `);
+    `)
+    .catch(
+      (error) => {
+        console.log(error);
+      },
+    );
 };
