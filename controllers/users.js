@@ -37,6 +37,13 @@ exports.createUserCtrl = (req, res) => {
         error: 'All fields are required',
       });
   }
+  if (firstName.length === 0 || lastName.length === 0 || email.length === 0 || gender.length === 0 || role.length === 0) {
+    return res.status(400)
+      .json({
+        status: 'error',
+        error: 'No NULLs',
+      });
+  }
   const mailOptions = {
     from: `${process.env.NODEMAILER_USER}`,
     to: `${email}`,
@@ -71,6 +78,12 @@ exports.createUserCtrl = (req, res) => {
                       message: 'user account successfully created',
                       userId,
                       password,
+                      firstName,
+                      lastName,
+                      email,
+                      gender,
+                      role,
+                      address
                     },
                   });
               });
@@ -389,3 +402,32 @@ exports.removeUser = (req, res) => {
       },
     );
 };
+
+exports.getUsers = (req, res) => {
+  pool.query('SELECT * FROM users')
+  .then(
+    ({rows}) => {
+      if (rows.length === 0) {
+        return res.status(404)
+        .json({
+          status: 'error',
+          error: 'No users',
+        })
+      }
+      return res.status(200)
+      .json({
+        status: 'success',
+        data: rows,
+      })
+    }
+    )
+  .catch(
+    (error) => {
+      res.status(501)
+      .json({
+        status: 'error',
+        error: `${error}`
+      })
+    }
+    )
+}

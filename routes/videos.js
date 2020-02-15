@@ -5,7 +5,7 @@ const videosCtrl = require('../controllers/videos');
 const upload = require('../middlewares/config-multer').videoUpload;
 const auth = require('../middlewares/config-jwt').auth;
 
-router.post('/', auth, upload, videosCtrl.uploadVideo);
+router.post('/', upload, videosCtrl.uploadVideo);
 router.patch('/:videoId', auth, videosCtrl.updateVideo);
 router.delete('/:videoId', auth, videosCtrl.deletVideo);
 router.get('/', videosCtrl.getVideos);
