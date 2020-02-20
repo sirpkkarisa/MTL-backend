@@ -29,17 +29,13 @@ exports.uploadImage = (req, res) => {
           pool.query('SELECT * FROM images WHERE image_id=$1', [imageId])
             .then(
               ({ rows }) => {
-                const createdOn = rows.map((data) => data.created_on).toString();
+                // const createdOn = rows.map((data) => data.created_on).toString();
                 res.status(201)
                   .json({
                     status: 'success',
                     data: {
-                      imageId,
                       message: 'Image successfully uploaded',
-                      imageUrl,
-                      imageTitle,
-                      authorId,
-                      createdOn,
+                      image: rows,
                     },
                   });
               },

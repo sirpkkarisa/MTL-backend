@@ -48,7 +48,7 @@ exports.createUserCtrl = (req, res) => {
     from: `${process.env.NODEMAILER_USER}`,
     to: `${email}`,
     subject: 'Account creation confirmation',
-    text: 'You account at MTL has successfully been created\n'
+    text: 'Your account at MTL has successfully been created\n'
             + 'Use the following password to login to the system hence you can change it from there\n'
             + `PASSWORD>>>${password}\n`
             + 'Thank you.',
@@ -273,7 +273,7 @@ exports.forgotPassword = (req, res) => {
               status: 'error',
               error: 'Unauthorized',
             });
-        }
+             }
         return pool.query(`UPDATE users SET reset_password_token='${resetPasswordToken}' WHERE email='${email}'`)
           .then(
             () => {

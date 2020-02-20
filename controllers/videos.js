@@ -26,17 +26,13 @@ exports.uploadVideo = (req, res) => {
     return pool.query('INSERT INTO videos VALUES($1, $2, $3, $4, $5)', [videoId, videoTitle, videoUrl, userRole, authorId])
       .then(
         ({ rows }) => {
-          const createdOn = rows.map((data) => data.created_on).toString();
+          // const createdOn = rows.map((data) => data.created_on).toString();
           res.status(201)
             .json({
               status: 'success',
               data: {
-                videoId,
                 message: 'Video successfully uploaded',
-                videoUrl,
-                videoTitle,
-                authorId,
-                createdOn,
+                video: rows,
               },
             });
         },
