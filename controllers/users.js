@@ -47,14 +47,12 @@ exports.createUserCtrl = (req, res) => {
   const mailOptions = {
     from: `${process.env.NODEMAILER_USER}`,
     to: `${email}`,
-    subject: 'Account creation confirmation',
+    subject: 'Account confirmation',
     text: 'Your account at MTL has successfully been created\n'
             + 'Use the following password to login to the system hence you can change it from there\n'
-            + `PASSWORD>>>${password}\n`
+            + `${password}\n`
             + 'Thank you.',
   };
-  // 8cd71c38e7ff1558e628
-  // 12345
   console.log(password);
   bcrypt.hash(password, 10)
     .then(
@@ -262,7 +260,7 @@ exports.forgotPassword = (req, res) => {
     text: 'You are receiving this email because either you( or someone else) have requested to change password\n'
         + 'If you did not request, please ignore and your password for MTL will remain unchaged\n'
         + 'Click the link below to reset password\n\n'
-        + `http://localhost:7001/${resetPasswordToken}.`,
+        + `http://localhost:3000/reset-password/${resetPasswordToken}.`,
   };
   pool.query(`SELECT * FROM users WHERE email='${email}'`)
     .then(
